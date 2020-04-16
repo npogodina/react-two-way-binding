@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import UserOutput from "./components/UserOutput";
-import UserInput from './components/UserInput';
 import { Button, Divider } from 'semantic-ui-react';
 
 import './App.css';
@@ -9,63 +8,78 @@ class App extends Component {
   state = {
     users: [
       {
-        name: "Cody"
+        id: 1,
+        name: "Cody",
+        food: "quiche"
       },
       {
-        name: "Nataliya"
+        id: 2,
+        name: "Nataliya",
+        food: "sushi"
+      },
+      {
+        id: 3,
+        name: "Evelynn",
+        food: "sausage"
       }
-    ]
+    ],
+    showUsers: true
   }
 
-  showFullNameHandler = () => {
-    this.setState( {
-      users: [
-        {
-          name: "Cody Jacob Farmer"
-        },
-        {
-          name: "Nataliya Pogodina-Farmer"
-        }
-      ]
-    })
+  // syntax allow to access this
+  toggleUsersHandler = () => {
+    const doesShow = this.state.showUsers;
+    this.setState({showUsers: !doesShow}); //get merged with previous state
   }
 
-  changeNameHandler = (event) => {
-    this.setState( {
-      users: [
-        {
-          name: event.target.value
-        },
-        {
-          name: "Nataliya"
-        }
-      ]
-    })
+  deleteUserHandler = (userIndex) => {
+    // const users = this.state.users.slice(); //creating a copy so that we don't manipulate the original array
+    const users = [...this.state.users]; //spread operator; new arr with objects from old arr
+    users.splice(userIndex, 1);
+    this.setState({users: users});
   }
 
-  changeNameHandler2 = (event) => {
-    this.setState( {
-      users: [
-        {
-          name: "Cody"
-        },
-        {
-          name: event.target.value
-        }
-      ]
-    })
+  changeNameHandler = (event, id) => {
+    const userIndex = this.state.users.findIndex(u => {
+      return u.id === id;
+    });
+
+    const user = {
+      ...this.state.users[userIndex]
+    };
+
+    user.name = event.target.value;
+
+    const users = [...this.state.users];
+    users[userIndex] = user;
+
+    this.setState( {users: users });
   }
 
   render() {
+    // should be inside the render function to run with every update
+    let users = null;
+    if (this.state.showUsers) {
+      users = (
+        <div>
+          {this.state.users.map((user, index) => {
+            return <UserOutput 
+                key={user.id}
+                username={user.name} 
+                food={user.food}
+                click={() => this.deleteUserHandler(index)}  // alternative: (?) bind(this, index)
+                changed={(event) => this.changeNameHandler(event, user.id)}
+            />
+          })}
+        </div>
+      );
+    }
+
     return (
       <div className="App">
-        <Button primary className="top-btn" onClick={this.showFullNameHandler}>Show Full Names</Button>
+        <Button primary className="top-btn" onClick={this.toggleUsersHandler}>Show/Hide Users</Button>
         <Divider />
-        <UserInput changed={this.changeNameHandler} username={this.state.users[0].name}/>
-        <UserOutput username={this.state.users[0].name}/>
-        <Divider />
-        <UserInput changed={this.changeNameHandler2}/>
-        <UserOutput username={this.state.users[1].name}/>
+        {users}
       </div>
     );
   }

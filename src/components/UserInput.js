@@ -5,7 +5,7 @@ import './UserInput.css';
 export default function UserInput(props) {
   return (
     <div>
-      <Input type="text" onChange={props.changed} value={props.username}></Input>
+      <Input type="text" value={props.username} onChange={props.changed}></Input>
     </div>
   )
 }
